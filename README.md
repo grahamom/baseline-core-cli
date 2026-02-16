@@ -173,4 +173,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Open an issue first, then submit a PR.
 
 ---
 
-Built by [Trent Mitchell](https://www.linkedin.com/in/trentjmitchell/). Baseline Studio researches how teams work with AI and ships the tools that come out of it.
+Baseline Studio researches how product teams can work better with AI. Built by [Trent](https://www.linkedin.com/in/trentjmitchell/).
