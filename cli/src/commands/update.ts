@@ -7,9 +7,9 @@ import { load } from "js-yaml";
 import { execSync } from "child_process";
 import * as ui from "../ui.js";
 
-// Sync skills, frameworks, scripts first — cli/ is replaced LAST
+// Sync skills, frameworks first — cli/ is replaced LAST
 // so the currently running process doesn't lose its own files mid-execution.
-const CONTENT_DIRS = ["skills", "frameworks", "scripts"];
+const CONTENT_DIRS = ["skills", "frameworks"];
 
 export function update(): void {
   const config = readConfig();
@@ -40,8 +40,8 @@ export function update(): void {
   const tmpDir = cloneAtTag(config.coreRepo, latest);
   spin2.stop("Downloaded");
 
-  // Sync content directories first (skills, frameworks, scripts)
-  const stats = { skills: 0, frameworks: 0, scripts: 0 };
+  // Sync content directories first (skills, frameworks)
+  const stats = { skills: 0, frameworks: 0 };
 
   for (const dir of CONTENT_DIRS) {
     const srcDir = join(tmpDir, dir);
@@ -132,7 +132,6 @@ export function update(): void {
   ui.summary(`Updated to v${latest}`, [
     ["Skills:", `${stats.skills}`],
     ["Frameworks:", `${stats.frameworks}`],
-    ["Scripts:", `${stats.scripts}`],
   ]);
   console.log();
 }

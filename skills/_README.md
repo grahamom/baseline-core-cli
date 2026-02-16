@@ -29,14 +29,12 @@ Skills draw on the other components of the Baseline System:
 | **Context** | Your business knowledge (identity, voice, users, product) | `../context/` |
 | **Frameworks** | Reusable patterns that skills reference | `../frameworks/` |
 | **Examples** | Approved output samples that define the quality bar | `../context/examples/` or `[skill-name]/examples/` |
-| **Scripts** | Delivery to external tools after skill produces output | `../scripts/` |
 
-**The Baseline System = Skills + Context + Frameworks + Scripts.** Skills create output. Context makes it specific to your business. Frameworks provide reusable methodology. Scripts deliver to external tools.
+**The Baseline System = Skills + Context + Frameworks.** Skills create output. Context makes it specific to your business. Frameworks provide reusable methodology.
 
 **Learn more:**
-- [System Overview](../README.md) — How the four components work together
+- [System Overview](../README.md) — How the three components work together
 - [Available Frameworks](../frameworks/_README.md) — See what patterns skills can reference
-- [Using Scripts](../scripts/_README.md) — Deliver output to external tools
 
 ---
 
@@ -129,31 +127,7 @@ Use the [Skill Building](skill-building/skill-building-skill.md) skill and its r
 
 ---
 
-## Scripts for Each Skill
-
-Scripts push outputs directly to external tools after a skill produces content. Every major AI tool supports this through MCP.
-
-| Skill | Available Scripts |
-|-------|-------------------|
-| **Strategic Advisory** | FigJam diagrams, monday.com roadmaps, Canva presentations |
-| **Research & Synthesis** | FigJam diagrams, Confluence pages, Google Docs |
-| **Product Communications** | Confluence pages, Google Docs, Slack posts |
-| **UX Design** | FigJam diagrams, wireframe specs |
-| **Product Analytics** | Amplitude metrics, Google Sheets |
-| **Prototyping** | Wireframe specs, Jira epics |
-| **Project Management** | Asana projects/sprints, Jira epics, monday.com roadmaps |
-| **Technical Documentation** | Confluence pages, Google Docs, markdown files |
-| **Visual Communication** | Canva presentations, FigJam diagrams |
-| **Product Marketing** | Canva presentations, Slack posts |
-| **Go-to-Market Planning** | Canva presentations, Google Docs |
-| **Skill Building** | — |
-
-See [Scripts](../scripts/_README.md) for the full list and setup requirements.
-
----
-
 ## Related
 
 - [Frameworks](../frameworks/_README.md) — Methodologies referenced by skills
-- [Scripts](../scripts/_README.md) — Push outputs directly to external tools
 - [System Overview](../README.md) — How the whole system works

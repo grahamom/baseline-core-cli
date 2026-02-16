@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/TrentM6/baseline-core.svg?style=social)](https://github.com/TrentM6/baseline-core)
 
-> A complete AI system for product teams. Skills provide methodology. Context makes it yours. Frameworks give structure. Scripts deliver to your tools.
+> A complete AI system for product teams. Skills provide methodology. Context makes it yours. Frameworks give structure.
 
 Open source. MIT licensed. [baselinestudio.design](https://baselinestudio.design)
 
@@ -29,14 +29,13 @@ The Baseline System is an AI-powered workflow system that helps product teams do
 
 It works with Claude Code (and other AI tools) by giving them structured knowledge about how to do product work and specific knowledge about your business.
 
-**Four components:**
+**Three components:**
 
 | Component | What It Does | Details |
 |-----------|-------------|---------|
 | **Skills** | Domain expertise modules that teach AI how to execute specific work | [`skills/_README.md`](skills/_README.md) |
 | **Context** | Your business-specific knowledge — identity, voice, customers, product | `context/` |
 | **Frameworks** | Reusable methodologies — prioritization, research, decision-making | [`frameworks/_README.md`](frameworks/_README.md) |
-| **Scripts** | Delivery to external tools — Figma, Asana, Confluence, etc. | [`scripts/_README.md`](scripts/_README.md) |
 
 Skills are universal. Context is yours. When you run a skill, it loads both — producing output that follows proven methodology and sounds like your brand.
 
@@ -125,7 +124,7 @@ See [`cli/README.md`](cli/README.md) for the full CLI documentation.
 |---------|-------------|
 | `npx @baseline-studio/cli init` | Create a new Baseline System |
 | `npx baseline status` | Show current version, check for updates |
-| `npx baseline update` | Pull latest skills, frameworks, scripts, and CLI |
+| `npx baseline update` | Pull latest skills, frameworks, and CLI |
 | `npx baseline context` | Re-run context prompts to update existing files |
 | `npx baseline context add <name>` | Create a new context file and wire it to skills |
 
@@ -145,7 +144,6 @@ your-system/
 │   ├── core/                    # Identity and voice (loaded by every skill)
 │   └── extended/                # Product, users, pricing, etc.
 ├── frameworks/                  # Reusable methodologies
-├── scripts/                     # Delivery to external tools
 └── cli/                         # Bundled CLI for daily use
 ```
 

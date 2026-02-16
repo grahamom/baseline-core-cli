@@ -245,8 +245,6 @@ Example: `client-presentation-quarterly-review-v2.pptx`
 | PDF | Documents, presentations for sharing |
 | PPT/PPTX | Editable presentations |
 
-**PDF from HTML/CSS:** If the deliverable was authored as styled HTML/CSS (whitepapers, branded documents, reports), use the [html-to-pdf](../../scripts/file-system/html-to-pdf.md) script to convert to PDF with full CSS fidelity.
-
 ---
 
 ## Quality Checks

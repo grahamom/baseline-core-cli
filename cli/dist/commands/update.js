@@ -42,9 +42,9 @@ const init_js_1 = require("./init.js");
 const js_yaml_1 = require("js-yaml");
 const child_process_1 = require("child_process");
 const ui = __importStar(require("../ui.js"));
-// Sync skills, frameworks, scripts first — cli/ is replaced LAST
+// Sync skills, frameworks first — cli/ is replaced LAST
 // so the currently running process doesn't lose its own files mid-execution.
-const CONTENT_DIRS = ["skills", "frameworks", "scripts"];
+const CONTENT_DIRS = ["skills", "frameworks"];
 function update() {
     const config = (0, config_js_1.readConfig)();
     const cwd = process.cwd();
@@ -68,8 +68,8 @@ function update() {
     const spin2 = ui.spinner("Downloading...");
     const tmpDir = (0, git_js_1.cloneAtTag)(config.coreRepo, latest);
     spin2.stop("Downloaded");
-    // Sync content directories first (skills, frameworks, scripts)
-    const stats = { skills: 0, frameworks: 0, scripts: 0 };
+    // Sync content directories first (skills, frameworks)
+    const stats = { skills: 0, frameworks: 0 };
     for (const dir of CONTENT_DIRS) {
         const srcDir = (0, path_1.join)(tmpDir, dir);
         const destDir = (0, path_1.join)(cwd, dir);
@@ -148,7 +148,6 @@ function update() {
     ui.summary(`Updated to v${latest}`, [
         ["Skills:", `${stats.skills}`],
         ["Frameworks:", `${stats.frameworks}`],
-        ["Scripts:", `${stats.scripts}`],
     ]);
     console.log();
 }

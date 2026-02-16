@@ -10,7 +10,7 @@ Create a new Baseline System:
 npx @baseline-studio/cli init
 ```
 
-You'll be asked for your company name, then guided through context questions to personalize your system. When it's done, you'll have a complete system with skills, frameworks, scripts, and context files — ready to use with Claude Code, Cursor, ChatGPT, or any AI tool.
+You'll be asked for your company name, then guided through context questions to personalize your system. When it's done, you'll have a complete system with skills, frameworks, and context files — ready to use with Claude Code, Cursor, ChatGPT, or any AI tool.
 
 ## Commands
 
@@ -19,7 +19,7 @@ Once you have a Baseline System, the CLI is bundled locally. Run commands from y
 | Command | What It Does |
 |---------|-------------|
 | `npx baseline status` | Show current version and check for updates |
-| `npx baseline update` | Pull latest skills, frameworks, scripts, and CLI |
+| `npx baseline update` | Pull latest skills, frameworks, and CLI |
 | `npx baseline context` | Re-run context prompts to update existing files |
 | `npx baseline context add <name>` | Create a new context file and wire it to skills |
 
@@ -44,13 +44,12 @@ your-system/
 ├── skills/                # 12 domain expertise modules
 ├── context/               # Your business knowledge (you own this)
 ├── frameworks/            # Reusable methodologies
-├── scripts/               # Delivery to external tools
 └── cli/                   # Bundled CLI for daily use
 ```
 
 ## Learn More
 
-See the [Baseline System documentation](https://github.com/TrentM6/baseline-core#readme) for the full guide — skills, context, frameworks, scripts, and tool-by-tool usage instructions.
+See the [Baseline System documentation](https://github.com/TrentM6/baseline-core#readme) for the full guide — skills, context, frameworks, and tool-by-tool usage instructions.
 
 ## License
 

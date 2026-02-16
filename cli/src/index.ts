@@ -22,7 +22,7 @@ program
 
 program
   .command("update")
-  .description("Pull latest skills, frameworks, and scripts from baseline-core")
+  .description("Pull latest skills and frameworks from baseline-core")
   .action(update);
 
 program

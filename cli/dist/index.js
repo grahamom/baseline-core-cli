@@ -19,7 +19,7 @@ program
     .action(status_js_1.status);
 program
     .command("update")
-    .description("Pull latest skills, frameworks, and scripts from baseline-core")
+    .description("Pull latest skills and frameworks from baseline-core")
     .action(update_js_1.update);
 program
     .command("init")

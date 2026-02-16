@@ -14,7 +14,6 @@ Thanks for your interest in contributing.
 
 - Bug fixes in the CLI
 - Improvements to existing skills and frameworks
-- New script integrations
 - Documentation fixes
 
 ## What to avoid

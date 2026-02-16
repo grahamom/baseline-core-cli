@@ -15,7 +15,7 @@ Skill says "prioritize features"  →  Loads prioritization.md  →  Applies RIC
 **Key principle:** Frameworks are universal. They work with any AI tool and aren't tied to specific skills.
 
 **Learn more:**
-- [System Overview](../README.md) — How frameworks fit with skills, context, and scripts
+- [System Overview](../README.md) — How frameworks fit with skills and context
 - [Browse Skills](../skills/_README.md) — See which skills reference which frameworks
 
 ---

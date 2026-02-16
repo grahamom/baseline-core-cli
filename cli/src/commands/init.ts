@@ -14,7 +14,7 @@ import { cloneAtTag, getLatestTag } from "../git.js";
 import { execSync } from "child_process";
 import * as ui from "../ui.js";
 
-const SYNC_DIRS = ["skills", "frameworks", "scripts", "cli"];
+const SYNC_DIRS = ["skills", "frameworks", "cli"];
 
 interface ContextPrompt {
   title: string;
@@ -78,7 +78,7 @@ export async function init(): Promise<void> {
   mkdirSync(join(destDir, "context", "core"), { recursive: true });
   mkdirSync(join(destDir, "context", "extended"), { recursive: true });
 
-  // 4. Copy skills, frameworks, scripts, cli
+  // 4. Copy skills, frameworks, cli
   for (const dir of SYNC_DIRS) {
     const srcDir = join(tmpDir, dir);
     if (existsSync(srcDir)) {
@@ -267,13 +267,11 @@ export async function init(): Promise<void> {
 
   const skillCount = existsSync(join(destDir, "skills")) ? readdirSync(join(destDir, "skills")).filter((f) => !f.startsWith(".") && !f.startsWith("_")).length : 0;
   const frameworkCount = existsSync(join(destDir, "frameworks")) ? readdirSync(join(destDir, "frameworks")).filter((f) => !f.startsWith(".") && !f.startsWith("_")).length : 0;
-  const scriptCount = existsSync(join(destDir, "scripts")) ? readdirSync(join(destDir, "scripts")).filter((f) => !f.startsWith(".") && !f.startsWith("_")).length : 0;
 
   ui.summary(`${clientName} system ready!`, [
     ["Version:", `v${latest}`],
     ["Skills:", `${skillCount}`],
     ["Frameworks:", `${frameworkCount}`],
-    ["Scripts:", `${scriptCount}`],
   ]);
 
   // Context importance + file listing
@@ -400,14 +398,13 @@ export function generateAgentsMd(clientName: string): string {
 
 ## What This Project Is
 
-The Baseline System is a complete AI system for product work with four components:
+The Baseline System is a complete AI system for product work with three components:
 
 1. **Skills** (\`skills/\`) — Domain expertise (12 universal skills)
 2. **Context** (\`context/\`) — Business-specific knowledge
 3. **Frameworks** (\`frameworks/\`) — Reusable methodologies
-4. **Scripts** (\`scripts/\`) — Delivery to external tools
 
-Skills provide methodology. Context personalizes output. Frameworks provide reusable patterns. Scripts deliver to tools.
+Skills provide methodology. Context personalizes output. Frameworks provide reusable patterns.
 
 ---
 
@@ -464,10 +461,6 @@ After loading all files, follow the workflow defined in the skill file and the w
 2. **Clarify** — Ask the skill's clarifying questions. Do not proceed with missing information.
 3. **Execute** — Do the domain-specific work using the skill's methodology and loaded context.
 4. **Validate** — Run the skill's quality checks. If any fail, apply error recovery and re-validate.
-
-### Step 5: Deliver (If Requested)
-
-If the user wants output delivered to an external tool, read the relevant script from \`scripts/\` and follow its instructions.
 
 ---
 
@@ -552,7 +545,7 @@ Read and follow all instructions in AGENTS.md at the repository root. That file 
 export function generateReadme(clientName: string): string {
   return `# ${clientName} — Baseline System
 
-> A complete AI system for product teams. Skills provide methodology. Context makes it yours. Frameworks give structure. Scripts deliver to your tools.
+> A complete AI system for product teams. Skills provide methodology. Context makes it yours. Frameworks give structure.
 
 ## Getting Started
 
@@ -569,14 +562,13 @@ The Baseline System is an AI-powered workflow system that helps product teams do
 
 It works with any AI coding tool by giving it structured knowledge about how to do product work and specific knowledge about your business.
 
-**Four components:**
+**Three components:**
 
 | Component | What It Does | Details |
 |-----------|-------------|---------|
 | **Skills** | Domain expertise modules that teach AI how to execute specific work | [\`skills/_README.md\`](skills/_README.md) |
 | **Context** | Your business-specific knowledge — identity, voice, customers, product | \`context/\` |
 | **Frameworks** | Reusable methodologies — prioritization, research, decision-making | [\`frameworks/_README.md\`](frameworks/_README.md) |
-| **Scripts** | Delivery to external tools — Figma, Asana, Confluence, etc. | [\`scripts/_README.md\`](scripts/_README.md) |
 
 Skills are universal. Context is yours. When you run a skill, it loads both — producing output that follows proven methodology and sounds like your brand.
 
@@ -662,7 +654,7 @@ Start with \`identity.md\` and \`voice.md\`, then fill out extended files as nee
 | Command | What It Does |
 |---------|-------------|
 | \`npx baseline status\` | Show current version, check for updates |
-| \`npx baseline update\` | Pull latest skills, frameworks, scripts, and CLI |
+| \`npx baseline update\` | Pull latest skills, frameworks, and CLI |
 | \`npx baseline context\` | Re-run context prompts to update existing files |
 | \`npx baseline context add <name>\` | Create a new context file and wire it to skills |
 
@@ -682,7 +674,6 @@ ${clientName.toLowerCase().replace(/\\s+/g, "-")}-system/
 │   ├── core/                    # Identity and voice (loaded by every skill)
 │   └── extended/                # Product, users, pricing, etc.
 ├── frameworks/                  # Reusable methodologies
-├── scripts/                     # Delivery to external tools
 └── cli/                         # Bundled CLI for daily use
 \`\`\`
 
