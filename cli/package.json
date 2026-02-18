@@ -1,6 +1,6 @@
 {
   "name": "@baseline-studio/cli",
-  "version": "2.9.2",
+  "version": "2.9.3",
   "description": "CLI for distributing and updating the Baseline System — an AI-powered workflow system for product teams",
   "keywords": [
     "baseline",

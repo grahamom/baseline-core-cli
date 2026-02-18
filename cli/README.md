@@ -59,8 +59,8 @@ your-system/
 | **Prototyping** | Coded prototypes, clickable demos, POCs, technical feasibility |
 | **Project Management** | Planning, tracking, sprints, status updates, risk management |
 | **Technical Documentation** | User guides, help center, API docs, release notes, how-to guides |
-| **Visual Communication** | Presentations, diagrams, decision visualization, data storytelling |
-| **Product Marketing** | Positioning, messaging frameworks, launch briefs, competitive messaging |
+| **Visual Communication** | Presentations, diagrams, decision visualization, data storytelling, narrative decks |
+| **Product Marketing** | Positioning, messaging frameworks, launch briefs, competitive messaging, case studies |
 | **Go-to-Market Planning** | Pricing strategy, launch planning, channel strategy, competitive positioning |
 | **Skill Building** | Create new skills, document expertise, build reference files |
 
