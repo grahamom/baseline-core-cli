@@ -68,39 +68,101 @@ function update() {
     const spin2 = ui.spinner("Downloading...");
     const tmpDir = (0, git_js_1.cloneAtTag)(config.coreRepo, latest);
     spin2.stop("Downloaded");
-    // Sync content directories first (skills, frameworks)
-    const stats = { skills: 0, frameworks: 0 };
+    // Sync content directories (skills, frameworks) — preserve custom items
+    const stats = { skills: 0, frameworks: 0, customSkills: 0, customFrameworks: 0, collisions: [] };
     for (const dir of CONTENT_DIRS) {
         const srcDir = (0, path_1.join)(tmpDir, dir);
         const destDir = (0, path_1.join)(cwd, dir);
         if (!(0, fs_1.existsSync)(srcDir))
             continue;
-        // Count items for summary
-        if (dir === "skills") {
-            stats.skills = (0, fs_1.readdirSync)(srcDir).filter((f) => (0, fs_1.statSync)((0, path_1.join)(srcDir, f)).isDirectory()).length;
+        // Identify core items (what ships in this release)
+        const coreItems = new Set((0, fs_1.readdirSync)(srcDir).filter((f) => !f.startsWith(".")));
+        // Identify custom items (client has it, core doesn't)
+        const customItems = [];
+        if ((0, fs_1.existsSync)(destDir)) {
+            for (const item of (0, fs_1.readdirSync)(destDir)) {
+                if (item.startsWith(".") || item.startsWith("_"))
+                    continue;
+                if (!coreItems.has(item)) {
+                    customItems.push(item);
+                }
+            }
         }
-        else {
-            stats[dir] = (0, fs_1.readdirSync)(srcDir).filter((f) => f.endsWith(".md") || (0, fs_1.statSync)((0, path_1.join)(srcDir, f)).isDirectory()).length;
+        // Save custom items to temp before replacing
+        const customTmp = (0, path_1.join)(tmpDir, `_custom_${dir}`);
+        if (customItems.length > 0) {
+            (0, fs_1.mkdirSync)(customTmp, { recursive: true });
+            for (const item of customItems) {
+                (0, fs_1.cpSync)((0, path_1.join)(destDir, item), (0, path_1.join)(customTmp, item), { recursive: true });
+            }
         }
-        // Full replace
+        // Count core items for summary
+        const coreCount = dir === "skills"
+            ? (0, fs_1.readdirSync)(srcDir).filter((f) => (0, fs_1.statSync)((0, path_1.join)(srcDir, f)).isDirectory()).length
+            : (0, fs_1.readdirSync)(srcDir).filter((f) => f.endsWith(".md") || (0, fs_1.statSync)((0, path_1.join)(srcDir, f)).isDirectory()).length;
+        if (dir === "skills")
+            stats.skills = coreCount;
+        else if (dir === "frameworks")
+            stats.frameworks = coreCount;
+        // Full replace of core content
         if ((0, fs_1.existsSync)(destDir)) {
             (0, fs_1.rmSync)(destDir, { recursive: true });
         }
         (0, fs_1.cpSync)(srcDir, destDir, { recursive: true });
+        // Restore custom items
+        if (customItems.length > 0) {
+            for (const item of customItems) {
+                const restoreDest = (0, path_1.join)(destDir, item);
+                // Name collision: core added an item with the same name as a custom one
+                if (coreItems.has(item)) {
+                    (0, fs_1.cpSync)((0, path_1.join)(customTmp, item), (0, path_1.join)(destDir, `${item}.custom-backup`), { recursive: true });
+                    stats.collisions.push(item);
+                }
+                else {
+                    (0, fs_1.cpSync)((0, path_1.join)(customTmp, item), restoreDest, { recursive: true });
+                }
+            }
+            if (dir === "skills")
+                stats.customSkills = customItems.length;
+            if (dir === "frameworks")
+                stats.customFrameworks = customItems.length;
+        }
         ui.success(`${dir.charAt(0).toUpperCase() + dir.slice(1)} updated (${stats[dir]})`);
     }
-    // Regenerate AI instruction files
+    // Report custom preservation
+    const totalCustom = stats.customSkills + stats.customFrameworks;
+    if (totalCustom > 0) {
+        const parts = [];
+        if (stats.customSkills > 0)
+            parts.push(`${stats.customSkills} skill${stats.customSkills > 1 ? "s" : ""}`);
+        if (stats.customFrameworks > 0)
+            parts.push(`${stats.customFrameworks} framework${stats.customFrameworks > 1 ? "s" : ""}`);
+        ui.success(`Custom preserved (${parts.join(", ")})`);
+    }
+    // Warn about name collisions
+    if (stats.collisions.length > 0) {
+        console.log();
+        ui.warn("Name collisions with new core items:");
+        for (const name of stats.collisions) {
+            console.log(`    ${ui.dim("→")} ${name} ${ui.dim("(your version backed up to " + name + ".custom-backup)")}`);
+        }
+    }
+    // Regenerate AI instruction files (using client's skills dir which now has core + custom)
     const clientName = config.client.name;
+    const clientSkillsDir = (0, path_1.join)(cwd, "skills");
     const agentsTemplatePath = (0, path_1.join)(tmpDir, "agents-template.md");
     if ((0, fs_1.existsSync)(agentsTemplatePath)) {
         let template = (0, fs_1.readFileSync)(agentsTemplatePath, "utf-8");
         template = template.replace(/\{client_name\}/g, clientName);
+        // Replace the hardcoded skill table placeholder if present
+        const dynamicTable = (0, init_js_1.buildSkillTable)(clientSkillsDir);
+        template = template.replace(/\{skill_table\}/g, dynamicTable);
         (0, fs_1.writeFileSync)((0, path_1.join)(cwd, "AGENTS.md"), template);
     }
     else {
-        (0, fs_1.writeFileSync)((0, path_1.join)(cwd, "AGENTS.md"), (0, init_js_1.generateAgentsMd)(clientName));
+        (0, fs_1.writeFileSync)((0, path_1.join)(cwd, "AGENTS.md"), (0, init_js_1.generateAgentsMd)(clientName, clientSkillsDir));
     }
-    (0, fs_1.writeFileSync)((0, path_1.join)(cwd, "CLAUDE.md"), (0, init_js_1.generateClaudeMdPointer)());
+    (0, fs_1.writeFileSync)((0, path_1.join)(cwd, "CLAUDE.md"), (0, init_js_1.generateClaudeMdPointer)(clientSkillsDir));
     (0, fs_1.mkdirSync)((0, path_1.join)(cwd, ".github"), { recursive: true });
     (0, fs_1.writeFileSync)((0, path_1.join)(cwd, ".github", "copilot-instructions.md"), (0, init_js_1.generateCopilotInstructions)());
     (0, fs_1.writeFileSync)((0, path_1.join)(cwd, "README.md"), (0, init_js_1.generateReadme)(clientName));
@@ -145,10 +207,11 @@ function update() {
     }
     // Clean up temp dir
     (0, fs_1.rmSync)(tmpDir, { recursive: true });
-    ui.summary(`Updated to v${latest}`, [
-        ["Skills:", `${stats.skills}`],
-        ["Frameworks:", `${stats.frameworks}`],
-    ]);
+    const summaryRows = [
+        ["Skills:", stats.customSkills > 0 ? `${stats.skills} core + ${stats.customSkills} custom` : `${stats.skills}`],
+        ["Frameworks:", stats.customFrameworks > 0 ? `${stats.frameworks} core + ${stats.customFrameworks} custom` : `${stats.frameworks}`],
+    ];
+    ui.summary(`Updated to v${latest}`, summaryRows);
     console.log();
 }
 function checkMissingContext(coreDir, contextDir) {

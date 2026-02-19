@@ -34,6 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.init = init;
+exports.buildSkillTable = buildSkillTable;
 exports.generateAgentsMd = generateAgentsMd;
 exports.generateClaudeMdPointer = generateClaudeMdPointer;
 exports.generateCopilotInstructions = generateCopilotInstructions;
@@ -188,17 +189,20 @@ async function init() {
     (0, fs_1.writeFileSync)((0, path_1.join)(destDir, "baseline.config.json"), JSON.stringify(config, null, 2) + "\n");
     // 10. Create AI instruction files
     // 10a. AGENTS.md — canonical instructions for all AI tools
+    const clientSkillsDir = (0, path_1.join)(destDir, "skills");
     const agentsTemplatePath = (0, path_1.join)(tmpDir, "agents-template.md");
     if ((0, fs_1.existsSync)(agentsTemplatePath)) {
         let template = (0, fs_1.readFileSync)(agentsTemplatePath, "utf-8");
         template = template.replace(/\{client_name\}/g, clientName);
+        const dynamicTable = buildSkillTable(clientSkillsDir);
+        template = template.replace(/\{skill_table\}/g, dynamicTable);
         (0, fs_1.writeFileSync)((0, path_1.join)(destDir, "AGENTS.md"), template);
     }
     else {
-        (0, fs_1.writeFileSync)((0, path_1.join)(destDir, "AGENTS.md"), generateAgentsMd(clientName));
+        (0, fs_1.writeFileSync)((0, path_1.join)(destDir, "AGENTS.md"), generateAgentsMd(clientName, clientSkillsDir));
     }
     // 10b. CLAUDE.md — pointer for Claude Code
-    (0, fs_1.writeFileSync)((0, path_1.join)(destDir, "CLAUDE.md"), generateClaudeMdPointer());
+    (0, fs_1.writeFileSync)((0, path_1.join)(destDir, "CLAUDE.md"), generateClaudeMdPointer(clientSkillsDir));
     // 10c. .github/copilot-instructions.md — pointer for GitHub Copilot Chat
     (0, fs_1.mkdirSync)((0, path_1.join)(destDir, ".github"), { recursive: true });
     (0, fs_1.writeFileSync)((0, path_1.join)(destDir, ".github", "copilot-instructions.md"), generateCopilotInstructions());
@@ -346,8 +350,57 @@ function buildContextYaml(coreDir, contextFiles) {
     }
     return yaml;
 }
+/** Build a markdown skill table from manifest files in a skills directory.
+ *  Falls back to a hardcoded table if no manifests are found. */
+function buildSkillTable(skillsDir) {
+    const FALLBACK_TABLE = `| Task | Skill |
+|------|-------|
+| Strategic decisions, roadmaps, prioritization | \`strategic-advisory\` |
+| User research, interviews, synthesis | \`research-synthesis\` |
+| PRDs, specs, briefs, stakeholder updates | \`product-communications\` |
+| Interface design, wireframes, UI copy | \`ux-design\` |
+| Metrics, dashboards, A/B tests | \`product-analytics\` |
+| Coded prototypes, demos, POCs | \`prototyping\` |
+| Planning, tracking, sprints | \`project-management\` |
+| User guides, help center, release notes | \`technical-documentation\` |
+| Presentations, diagrams, decision visualization | \`visual-communication\` |
+| Positioning, messaging, launch briefs | \`product-marketing\` |
+| Pricing strategy, launch planning, channels | \`go-to-market-planning\` |
+| Creating new skills | \`skill-building\` |`;
+    if (!(0, fs_1.existsSync)(skillsDir))
+        return FALLBACK_TABLE;
+    const rows = [];
+    for (const entry of (0, fs_1.readdirSync)(skillsDir)) {
+        if (entry.startsWith(".") || entry.startsWith("_"))
+            continue;
+        const entryPath = (0, path_1.join)(skillsDir, entry);
+        if (!(0, fs_1.statSync)(entryPath).isDirectory())
+            continue;
+        const manifestPath = (0, path_1.join)(entryPath, "manifest.yaml");
+        if (!(0, fs_1.existsSync)(manifestPath))
+            continue;
+        try {
+            const manifest = (0, js_yaml_1.load)((0, fs_1.readFileSync)(manifestPath, "utf-8"));
+            const skill = manifest?.skill || entry;
+            const description = manifest?.description || skill;
+            rows.push({ description, skill });
+        }
+        catch {
+            // Skip unparseable manifests
+        }
+    }
+    if (rows.length === 0)
+        return FALLBACK_TABLE;
+    // Sort alphabetically by skill name
+    rows.sort((a, b) => a.skill.localeCompare(b.skill));
+    let table = "| Task | Skill |\n|------|-------|\n";
+    for (const row of rows) {
+        table += `| ${row.description} | \`${row.skill}\` |\n`;
+    }
+    return table.trimEnd();
+}
 /** Generate AGENTS.md — canonical AI instructions for all tools */
-function generateAgentsMd(clientName) {
+function generateAgentsMd(clientName, skillsDir) {
     return `# ${clientName} — Baseline System
 
 > This file provides instructions for AI coding agents. It enforces consistent skill execution across all AI tools.
@@ -358,7 +411,7 @@ function generateAgentsMd(clientName) {
 
 The Baseline System is a complete AI system for product work with three components:
 
-1. **Skills** (\`skills/\`) — Domain expertise (12 universal skills)
+1. **Skills** (\`skills/\`) — Domain expertise modules
 2. **Context** (\`context/\`) — Business-specific knowledge
 3. **Frameworks** (\`frameworks/\`) — Reusable methodologies
 
@@ -374,20 +427,7 @@ When a user invokes any skill — by name, by file path, or by describing a task
 
 Match the user's request to a skill using this table:
 
-| Task | Skill |
-|------|-------|
-| Strategic decisions, roadmaps, prioritization | \`strategic-advisory\` |
-| User research, interviews, synthesis | \`research-synthesis\` |
-| PRDs, specs, briefs, stakeholder updates | \`product-communications\` |
-| Interface design, wireframes, UI copy | \`ux-design\` |
-| Metrics, dashboards, A/B tests | \`product-analytics\` |
-| Coded prototypes, demos, POCs | \`prototyping\` |
-| Planning, tracking, sprints | \`project-management\` |
-| User guides, help center, release notes | \`technical-documentation\` |
-| Presentations, diagrams, decision visualization | \`visual-communication\` |
-| Positioning, messaging, launch briefs | \`product-marketing\` |
-| Pricing strategy, launch planning, channels | \`go-to-market-planning\` |
-| Creating new skills | \`skill-building\` |
+${skillsDir ? buildSkillTable(skillsDir) : buildSkillTable("")}
 
 ### Step 2: Read the Manifest
 
@@ -483,10 +523,11 @@ If the conversation shifts to executing a specific deliverable (e.g., "now write
 `;
 }
 /** Generate CLAUDE.md — full instructions for Claude Code (not a pointer) */
-function generateClaudeMdPointer() {
+function generateClaudeMdPointer(skillsDir) {
     // Claude Code reads CLAUDE.md at session start but does NOT auto-follow
     // "read AGENTS.md" redirects. So CLAUDE.md must contain the full instructions
     // rather than a thin pointer. AGENTS.md still exists for Cursor/Codex/Windsurf/Copilot.
+    const skillTable = skillsDir ? buildSkillTable(skillsDir) : buildSkillTable("");
     return `# Baseline System
 
 Read and follow all instructions in AGENTS.md in this directory. That file is the canonical source of truth for how this system works, including the Skill Execution Protocol, skill mapping, Co-Founder Mode, and session management guidelines.
@@ -499,20 +540,7 @@ Read and follow all instructions in AGENTS.md in this directory. That file is th
 
 ### Skill Mapping
 
-| Task | Skill |
-|------|-------|
-| Strategic decisions, roadmaps, prioritization | \`strategic-advisory\` |
-| User research, interviews, synthesis | \`research-synthesis\` |
-| PRDs, specs, briefs, stakeholder updates | \`product-communications\` |
-| Interface design, wireframes, UI copy | \`ux-design\` |
-| Metrics, dashboards, A/B tests | \`product-analytics\` |
-| Coded prototypes, demos, POCs | \`prototyping\` |
-| Planning, tracking, sprints | \`project-management\` |
-| User guides, help center, release notes | \`technical-documentation\` |
-| Presentations, diagrams, decision visualization | \`visual-communication\` |
-| Positioning, messaging, launch briefs | \`product-marketing\` |
-| Pricing strategy, launch planning, channels | \`go-to-market-planning\` |
-| Creating new skills | \`skill-building\` |
+${skillTable}
 
 ### Skill Execution Protocol
 
@@ -684,20 +712,26 @@ ${clientName.toLowerCase().replace(/\\s+/g, "-")}-system/
 └── cli/                         # Bundled CLI for daily use
 \`\`\`
 
-**You own \`context/\`.** Everything else is managed by the system and updated via \`npx baseline update\`.
+**You own \`context/\`.** Core skills and frameworks are managed by the system and updated via \`npx baseline update\`. Custom skills and frameworks you add are preserved during updates.
 
 ---
 
 ## FAQ
 
-**Can I edit skill files?**
-You can, but changes are overwritten on \`baseline update\`. Put custom behavior in context files instead.
+**Can I add custom skills?**
+Yes. Create a new folder in \`skills/\` with a \`manifest.yaml\`. Custom skills survive updates automatically — only core skills are replaced on \`baseline update\`. Your custom skills will appear in the AI skill mapping table after the next update.
+
+**Can I edit core skill files?**
+You can, but edits to core skills are overwritten on \`baseline update\`. Put custom behavior in context files or create a custom skill instead.
 
 **What if I don't have all the context files filled out?**
 Skills work with whatever context is available. Missing context means more generic output, but nothing breaks.
 
 **Can I add my own context files?**
 Yes. Run \`npx baseline context add <name>\` to create a new file and wire it to skills.
+
+**Where do outputs go?**
+If an output becomes reference material for future work (examples, templates, approved messaging), put it in \`context/extended/\`. Otherwise, save outputs wherever your team works — Google Docs, Notion, your codebase, etc. The system is a methodology engine, not a document repository.
 
 **What AI tools does this work with?**
 Any AI tool. The \`AGENTS.md\` file is automatically read by Claude Code, Codex, Cursor, Windsurf, GitHub Copilot, JetBrains AI, and others. Chat tools like ChatGPT work when you upload skill and context files.
